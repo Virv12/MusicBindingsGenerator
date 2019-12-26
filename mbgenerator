@@ -1,0 +1,67 @@
+#!/usr/bin/env bash
+
+FILE=$HOME/.config/i3/config;
+for i in "$@"; do
+	case $i in
+		-h|--help)   HELP=y   ;;
+		-r|--remove) REMOVE=y ;;
+		*)           FILE=$i  ;;
+	esac
+done
+
+if [[ "$HELP" ]]; then
+	cat <<EOF
+Usage: mbgenerator [-r] [FILE]
+Generate i3 key bindings for every file in \$HOME/Musica
+
+  -h, --help      print this message and quit
+  -r, --remove    remove generated key bindings
+  FILE            i3 configuration file, default "\$HOME/.config/i3/config
+EOF
+exit
+fi
+
+[[ -f $FILE ]] || { echo "\"$FILE\" is not a file"; exit 1; }
+
+DIFF=$HOME/.local/share/mbgenerator/$(echo $FILE | sed 's/\//%/g;s/ /_/g').diff
+
+remove() {
+	[[ -f $DIFF ]] || exit 1
+	patch -R $FILE $DIFF
+	rm $DIFF
+}
+
+generate() {
+	echo '### Code generated automatically by mbgenerator --- do not modify ###'
+	echo 'bindsym $mod+t mode "$music"'
+
+	echo -n 'set $music '
+	for file in ~/Musica/*; do
+		echo -n "[$(basename $file | sed 's/^\(.\).*/\1/')] $(basename $file | sed 's/^.\(.*\)/\1/'), ";
+	done
+	echo
+
+	echo 'mode "$music" {'
+
+	for file in ~/Musica/*; do
+		echo "	bindsym $(basename $file | sed 's/^\(.\).*/\1/') exec --no-startup-id mpv $file, mode \"default\"";
+	done
+
+	echo
+	echo '	bindsym Return mode "default"'
+	echo '	bindsym Escape mode "default"'
+	echo '}'
+	echo '### ------------------------------------------------------------- ###'
+}
+
+if [ "$REMOVE" ]; then
+	remove
+else
+	[[ -f $DIFF ]] && remove
+
+	mkdir -p $HOME/.local/share/mbgenerator
+	cp $FILE $FILE~
+	generate >> $FILE
+	diff $FILE~ $FILE > $DIFF
+	rm $FILE~
+fi
