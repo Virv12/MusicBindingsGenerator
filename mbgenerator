@@ -17,6 +17,8 @@ Generate i3 key bindings for every file in \$HOME/Musica
   -h, --help      print this message and quit
   -r, --remove    remove generated key bindings
   FILE            i3 configuration file, default "\$HOME/.config/i3/config
+
+home page: https://github.com/Virv12/MusicBindingsGenerator
 EOF
 exit
 fi
