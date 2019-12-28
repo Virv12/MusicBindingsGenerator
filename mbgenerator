@@ -2,6 +2,9 @@
 
 CONFIG=$HOME/.config/i3/config
 FILES=()
+
+[[ -f "$HOME/.config/mbgenerator/config" ]] && source "$HOME/.config/mbgenerator/config"
+
 while [[ $# -gt 0 ]]; do
 	case "$1" in
 		-h|--help)   HELP=1           ;;
