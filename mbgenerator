@@ -2,14 +2,16 @@
 
 CONFIG=$HOME/.config/i3/config
 FILES=()
+KEY='$mod+Shift+m'
 
 [[ -f "$HOME/.config/mbgenerator/config" ]] && source "$HOME/.config/mbgenerator/config"
 
 while [[ $# -gt 0 ]]; do
 	case "$1" in
-		-h|--help)   HELP=1           ;;
-		-r|--remove) REMOVE=1         ;;
 		-c|--config) CONFIG=$2; shift ;;
+		-h|--help)   HELP=1           ;;
+		-k|--key)    KEY=$2;    shift ;;
+		-r|--remove) REMOVE=1         ;;
 		*)           FILES+=($1)      ;;
 	esac
 	shift
@@ -17,12 +19,13 @@ done
 
 if [[ "$HELP" ]]; then
 	cat <<EOF
-Usage: mbgenerator [-h] [-r] [-c CONFIG] FILES...
+Usage: mbgenerator [-h] [-r] [-c CONFIG] [-k KEY] FILES...
 Generate i3 key bindings for music file
 
-  -h, --help             print this message and quit
-  -r, --remove           remove generated key bindings
   -c, --config CONFIG    i3 configuration file, default "\$HOME/.config/i3/config"
+  -h, --help             print this message and quit
+  -k, --key KEY          the binding key, default \$mod+Shift+m
+  -r, --remove           remove generated key bindings
   FILES                  the files to generate bindings for
 
 home page: https://github.com/Virv12/MusicBindingsGenerator
@@ -42,15 +45,15 @@ remove() {
 
 generate() {
 	echo '### Code generated automatically by mbgenerator --- do not modify ###'
-	echo 'bindsym $mod+t mode "$music"'
+	echo "bindsym $KEY mode \"\$mbgenerator\""
 
-	echo -n 'set $music '
+	echo -n 'set $mbgenerator '
 	for file in ${FILES[@]}; do
 		echo -n "[$(basename $file | sed 's/^\(.\).*/\1/')] $(basename $file | sed 's/^.\(.*\)/\1/'), ";
 	done
 	echo
 
-	echo 'mode "$music" {'
+	echo 'mode "$mbgenerator" {'
 
 	for file in ${FILES[@]}; do
 		echo "	bindsym $(basename $file | sed 's/^\(.\).*/\1/') exec --no-startup-id mpv $file, mode \"default\"";
