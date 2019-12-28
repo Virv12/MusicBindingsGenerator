@@ -1,35 +1,39 @@
 #!/usr/bin/env bash
 
-FILE=$HOME/.config/i3/config;
-for i in "$@"; do
-	case $i in
-		-h|--help)   HELP=y   ;;
-		-r|--remove) REMOVE=y ;;
-		*)           FILE=$i  ;;
+CONFIG=$HOME/.config/i3/config
+FILES=()
+while [[ $# -gt 0 ]]; do
+	case "$1" in
+		-h|--help)   HELP=1           ;;
+		-r|--remove) REMOVE=1         ;;
+		-c|--config) CONFIG=$2; shift ;;
+		*)           FILES+=($1)      ;;
 	esac
+	shift
 done
 
 if [[ "$HELP" ]]; then
 	cat <<EOF
-Usage: mbgenerator [-r] [FILE]
-Generate i3 key bindings for every file in \$HOME/Musica
+Usage: mbgenerator [-h] [-r] [-c CONFIG] FILES...
+Generate i3 key bindings for music file
 
-  -h, --help      print this message and quit
-  -r, --remove    remove generated key bindings
-  FILE            i3 configuration file, default "\$HOME/.config/i3/config
+  -h, --help             print this message and quit
+  -r, --remove           remove generated key bindings
+  -c, --config CONFIG    i3 configuration file, default "\$HOME/.config/i3/config"
+  FILES                  the files to generate bindings for
 
 home page: https://github.com/Virv12/MusicBindingsGenerator
 EOF
 exit
 fi
 
-[[ -f $FILE ]] || { echo "\"$FILE\" is not a file"; exit 1; }
+[[ -f $CONFIG ]] || { echo "\"$CONFIG\" is not a file"; exit 1; }
 
-DIFF=$HOME/.local/share/mbgenerator/$(echo $FILE | sed 's/\//%/g;s/ /_/g').diff
+DIFF=$HOME/.local/share/mbgenerator/$(echo $CONFIG | sed 's/\//%/g;s/ /_/g').diff
 
 remove() {
 	[[ -f $DIFF ]] || exit 1
-	patch -R $FILE $DIFF
+	patch -R $CONFIG $DIFF
 	rm $DIFF
 }
 
@@ -38,14 +42,14 @@ generate() {
 	echo 'bindsym $mod+t mode "$music"'
 
 	echo -n 'set $music '
-	for file in ~/Musica/*; do
+	for file in ${FILES[@]}; do
 		echo -n "[$(basename $file | sed 's/^\(.\).*/\1/')] $(basename $file | sed 's/^.\(.*\)/\1/'), ";
 	done
 	echo
 
 	echo 'mode "$music" {'
 
-	for file in ~/Musica/*; do
+	for file in ${FILES[@]}; do
 		echo "	bindsym $(basename $file | sed 's/^\(.\).*/\1/') exec --no-startup-id mpv $file, mode \"default\"";
 	done
 
@@ -62,8 +66,8 @@ else
 	[[ -f $DIFF ]] && remove
 
 	mkdir -p $HOME/.local/share/mbgenerator
-	cp $FILE $FILE~
-	generate >> $FILE
-	diff $FILE~ $FILE > $DIFF
-	rm $FILE~
+	cp $CONFIG $CONFIG~
+	generate >> $CONFIG
+	diff $CONFIG~ $CONFIG > $DIFF
+	rm $CONFIG~
 fi
