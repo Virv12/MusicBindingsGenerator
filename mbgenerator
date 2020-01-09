@@ -49,14 +49,14 @@ generate() {
 
 	echo -n 'set $mbgenerator '
 	for file in ${FILES[@]}; do
-		echo -n "[$(basename $file | sed 's/^\(.\).*/\1/')] $(basename $file | sed 's/^.\(.*\)/\1/'), ";
+		echo -n "[$(basename "$file" | sed 's/^\(.\).*/\1/')] $(basename "$file" | sed 's/^.\(.*\)/\1/'), ";
 	done
 	echo
 
 	echo 'mode "$mbgenerator" {'
 
 	for file in ${FILES[@]}; do
-		echo "	bindsym $(basename $file | sed 's/^\(.\).*/\1/') exec --no-startup-id mpv $file, mode \"default\"";
+		echo "	bindsym $(basename "$file" | sed 's/^\(.\).*/\1/') exec --no-startup-id mpv \"$file\", mode \"default\"";
 	done
 
 	echo
