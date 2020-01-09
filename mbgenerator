@@ -53,9 +53,9 @@ generate() {
 
 	echo -n 'set $mbgenerator '
 	for file in ${FILES[@]}; do
-		echo -n "[$(basename "$file" | sed 's/^\(.\).*/\1/')] $(basename "$file" | sed 's/^.\(.*\)/\1/'), ";
+		echo -n "($(basename "$file" | sed 's/^\(.\).*/\1/')) $(basename "$file" | sed 's/^.\(.*\)/\1/'), ";
 	done
-	echo "[$SKEY] stop music"
+	echo "($SKEY) stop music"
 
 	echo 'mode "$mbgenerator" {'
 
