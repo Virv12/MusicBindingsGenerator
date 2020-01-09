@@ -48,6 +48,7 @@ remove() {
 
 generate() {
 	echo '### Code generated automatically by mbgenerator --- do not modify ###'
+	echo '### home page: https://github.com/Virv12/MusicBindingsGenerator   ###'
 	echo "bindsym $KEY mode \"\$mbgenerator\""
 
 	echo -n 'set $mbgenerator '
