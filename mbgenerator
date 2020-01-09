@@ -3,6 +3,7 @@
 CONFIG=$HOME/.config/i3/config
 FILES=()
 KEY='$mod+Shift+m'
+SKEY='$mod+p'
 
 [[ -f "$HOME/.config/mbgenerator/config" ]] && source "$HOME/.config/mbgenerator/config"
 
@@ -12,6 +13,7 @@ while [[ $# -gt 0 ]]; do
 		-h|--help)   HELP=1           ;;
 		-k|--key)    KEY=$2;    shift ;;
 		-r|--remove) REMOVE=1         ;;
+		-s|--stop)   SKEY=$2:   shift ;;
 		*)           FILES+=($1)      ;;
 	esac
 	shift
@@ -26,6 +28,7 @@ Generate i3 key bindings for music file
   -h, --help             print this message and quit
   -k, --key KEY          the binding key, default \$mod+Shift+m
   -r, --remove           remove generated key bindings
+  -s, --stop SKEY        binding to stop music, default \$mod+p
   FILES                  the files to generate bindings for
 
 home page: https://github.com/Virv12/MusicBindingsGenerator
@@ -51,15 +54,16 @@ generate() {
 	for file in ${FILES[@]}; do
 		echo -n "[$(basename "$file" | sed 's/^\(.\).*/\1/')] $(basename "$file" | sed 's/^.\(.*\)/\1/'), ";
 	done
-	echo
+	echo "[$SKEY] stop music"
 
 	echo 'mode "$mbgenerator" {'
 
 	for file in ${FILES[@]}; do
-		echo "	bindsym $(basename "$file" | sed 's/^\(.\).*/\1/') exec --no-startup-id mpv \"$file\", mode \"default\"";
+		echo "	bindsym $(basename "$file" | sed 's/^\(.\).*/\1/') exec --no-startup-id mpv --no-video \"$file\", mode \"default\"";
 	done
 
 	echo
+	echo '	bindsym $mod+p exec --no-startup-id killall mpv, mode "default"'
 	echo '	bindsym Return mode "default"'
 	echo '	bindsym Escape mode "default"'
 	echo '}'
